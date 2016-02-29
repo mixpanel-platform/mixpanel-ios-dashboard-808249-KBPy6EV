@@ -115,15 +115,7 @@
 		           ||(params.max_length && item.sequence.length > params.max_length));
 		}
 
-		function returnSequence(item) {
-		    return item.sequence;
-		}
-
-		function returnProp(item) {
-		    return item.property;
-		}
-
-		function returnKey(item) {
+		function getKey(item) {
 		    return item.key[item.key.length - 1];
 		}
 
@@ -169,8 +161,8 @@
 		        .filter(filterForEndEvent)
 		        .map(mapToSequence)
 		        .filter(filterToRelevantSequences)
-		        .groupBy([returnSequence, returnProp], mixpanel.reducer.count())
-		        .groupBy([returnKey], theTop(params.num_results))
+		        .groupBy(['sequence', 'property'], mixpanel.reducer.count())
+		        .groupBy([getKey], theTop(params.num_results))
 		        .map(mapToFinalResult);
 		    }
 		    else {
@@ -179,8 +171,8 @@
 		        .filter(filterForEndEvent)
 		        .map(mapToSequence)
 		        .filter(filterToRelevantSequences)
-		        .groupBy([returnSequence, returnProp], mixpanel.reducer.count())
-		        .groupBy([returnKey], theTop(params.num_results))
+		        .groupBy(['sequence', 'property'], mixpanel.reducer.count())
+		        .groupBy([getKey], theTop(params.num_results))
 		        .map(mapToFinalResult);
 		    }
 		}
@@ -210,7 +202,7 @@
       </div>
       <div class="dropdown-section">
       	<div class="select left">
-      		<div class="dropdown-label">Count between:</div>
+      		<div class="dropdown-label">Sequence Length (# events):</div>
       		<div id="minLengthSelect"></div>
       		<div id="maxLengthSelect"></div>
       	</div>
@@ -241,8 +233,8 @@
 		time_unit.val(86400000);
 		var min_sequence_length = $('#minLengthSelect').MPSelect({items: items(1,2,3,4,5,6,7,8,9,10)});
 		var max_sequence_length = $('#maxLengthSelect').MPSelect({items: items(1,2,3,4,5,6,7,8,9,10)});
-		min_sequence_length.val(2);
-		max_sequence_length.val(8);
+		min_sequence_length.val(1);
+		max_sequence_length.val(5);
 		var max_results = $('#numResultsSelect').MPSelect({items: items(2, 5, 10, 15, 50)});
 		max_results.val(5);
 		var start_event = $('#startEventSelect').MPEventSelect();
@@ -274,7 +266,7 @@
 						res.push({});
 					}
 					var resultMapper = function(item) {
-		                var propval = item.key.property;
+		                var propval = item.key.property + ' (' + item.key.count + ')';
 		                for (i = 0; i < params.num_results; i++) {
 		                    var result = 'no flow';
 		                    if (item.value[i])
